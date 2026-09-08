@@ -1,0 +1,17 @@
+{
+  "name": "ig-dm-autoreply",
+  "version": "1.0.0",
+  "description": "Instagram DM auto-reply bot for Marklix — sends one fixed welcome reply per conversation.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0"
+  }
+}
