@@ -128,20 +128,35 @@ async function fetchSenderName(senderId) {
   }
 }
 
+// Picks an Indian mobile number out of free-form message text, e.g. "9876543210",
+// "+91 98765 43210", "091-98765-43210". Returns just the 10 digits, or null.
+function extractPhone(text) {
+  if (!text) return null;
+  const stripped = text.replace(/[\s()-]/g, '');
+  const match = stripped.match(/(?:\+?91)?([6-9]\d{9})/);
+  return match ? match[1] : null;
+}
+
 async function recordLeadInCrm(senderId, messageText) {
   if (!crm.crmConfigured()) return; // CRM env vars not set — skip silently
 
   try {
     const existingDealId = getDealId(senderId);
+    const phone = extractPhone(messageText);
 
     if (existingDealId) {
       await crm.addFollowUpNote(existingDealId, messageText);
       console.log(`Added follow-up note to CRM enquiry ${existingDealId} for ${senderId}`);
+
+      if (phone) {
+        await crm.updateDealFields(existingDealId, { phone });
+        console.log(`Updated phone number on CRM enquiry ${existingDealId} for ${senderId}`);
+      }
       return;
     }
 
     const name = await fetchSenderName(senderId);
-    const dealId = await crm.createEnquiry({ name, senderId, messageText });
+    const dealId = await crm.createEnquiry({ name, senderId, messageText, phone });
     setDealId(senderId, dealId);
     console.log(`Created CRM enquiry ${dealId} for ${senderId}`);
   } catch (err) {

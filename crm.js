@@ -46,14 +46,14 @@ async function crmRequest(path, body) {
  * Create a new Enquiry (deal) for a first-time Instagram DM sender.
  * Returns the new deal's numeric ID.
  */
-async function createEnquiry({ name, senderId, messageText }) {
+async function createEnquiry({ name, senderId, messageText, phone }) {
   const title = name && name.trim() ? name.trim() : `Instagram Lead – ${senderId}`;
   const today = new Date().toISOString().slice(0, 10);
 
   const deal = await crmRequest('/records/deal', {
     company: title,
     person: name || '',
-    phone: '',
+    phone: phone || '',
     email: '',
     whatsapp: '',
     service: '',
@@ -88,4 +88,12 @@ async function addFollowUpNote(dealId, messageText) {
   });
 }
 
-module.exports = { crmConfigured, createEnquiry, addFollowUpNote };
+/**
+ * Update one or more fields (e.g. phone) on an existing Enquiry, without touching
+ * the rest of the record or adding a note.
+ */
+async function updateDealFields(dealId, fields) {
+  await crmRequest(`/records/deal/${dealId}`, fields);
+}
+
+module.exports = { crmConfigured, createEnquiry, addFollowUpNote, updateDealFields };
