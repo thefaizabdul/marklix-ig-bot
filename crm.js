@@ -8,7 +8,11 @@ const {
   CRM_SITE_URL,        // e.g. https://crm.marklix.in
   CRM_USERNAME,        // WordPress username, e.g. fyzoomedia
   CRM_APP_PASSWORD,    // the "xxxx xxxx xxxx xxxx xxxx xxxx" Application Password
+  LEAD_SOURCE_LABEL,   // optional: distinguishes which Instagram account a lead came from
+                        // when several bots share this same CRM, e.g. "Instagram - Wedsee"
 } = process.env;
+
+const SOURCE_LABEL = LEAD_SOURCE_LABEL && LEAD_SOURCE_LABEL.trim() ? LEAD_SOURCE_LABEL.trim() : 'Instagram';
 
 function crmConfigured() {
   return Boolean(CRM_SITE_URL && CRM_USERNAME && CRM_APP_PASSWORD);
@@ -57,7 +61,7 @@ async function createEnquiry({ name, senderId, messageText, phone }) {
     email: '',
     whatsapp: '',
     service: '',
-    source: 'Instagram',
+    source: SOURCE_LABEL,
     budget: 0,
     value: 0,
     stage: 'new',
