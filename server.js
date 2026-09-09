@@ -13,7 +13,7 @@ const crm = require('./crm');
 const {
   VERIFY_TOKEN,        // any string you make up — must match what you enter in the Meta App Dashboard
   APP_SECRET,          // from Meta App Dashboard > Settings > Basic > App Secret
-  PAGE_ACCESS_TOKEN,   // Page access token for the Facebook Page linked to your Instagram account
+  PAGE_ACCESS_TOKEN,   // Instagram User access token (from "API setup with Instagram login")
   AUTO_REPLY_TEXT,     // the fixed message to send
   RESET_HOURS = '24',  // how long before the same person can get the auto-reply again
   PORT = '3000',
@@ -114,10 +114,11 @@ async function handleMessagingEvent(event) {
 async function fetchSenderName(senderId) {
   if (!PAGE_ACCESS_TOKEN) return '';
   try {
-    const url = `https://graph.facebook.com/v19.0/${senderId}?fields=name,username&access_token=${encodeURIComponent(
-      PAGE_ACCESS_TOKEN
-    )}`;
-    const resp = await fetch(url);
+    // Instagram API with Instagram Login uses the graph.instagram.com host.
+    const url = `https://graph.instagram.com/v21.0/${senderId}?fields=name,username`;
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${PAGE_ACCESS_TOKEN}` },
+    });
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) return '';
     return data.name || data.username || '';
@@ -154,17 +155,19 @@ async function sendReply(recipientId, text) {
     return;
   }
 
-  const url = `https://graph.facebook.com/v19.0/me/messages?access_token=${encodeURIComponent(
-    PAGE_ACCESS_TOKEN
-  )}`;
+  // Instagram API with Instagram Login: base host is graph.instagram.com, and the
+  // Instagram User Access Token is passed as a Bearer token, not a query param.
+  const url = 'https://graph.instagram.com/v21.0/me/messages';
 
   const resp = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${PAGE_ACCESS_TOKEN}`,
+    },
     body: JSON.stringify({
       recipient: { id: recipientId },
       message: { text },
-      messaging_type: 'RESPONSE',
     }),
   });
 

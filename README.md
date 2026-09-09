@@ -45,23 +45,40 @@ for everyone, sent once per conversation (won't repeat itself to the same person
 
 ---
 
-## Step 3 — Connect Instagram + get a Page Access Token
+## Step 3 — Connect Instagram + get an access token
 
-1. In the Marklix app dashboard, find **Instagram** in the left sidebar (add the
-   "Instagram" product to the app if it's not there yet — **Add Product > Instagram**).
-2. Follow the prompts to connect the Facebook Page linked to your Instagram account,
-   and generate a **Page Access Token** (or a long-lived token via
-   **Instagram > API setup with Instagram business login**).
-3. Make sure these permissions are granted: `instagram_basic`,
-   `instagram_manage_messages`, `pages_messaging`, `pages_show_list`.
-4. Copy the access token into Render as `PAGE_ACCESS_TOKEN`, then redeploy.
+This bot uses the newer **Instagram API with Instagram Login** (not the older
+Page-linked Messenger flow), so everything happens under the Instagram API use case:
+
+1. In the Marklix app dashboard → **Use cases** → **Instagram API** → **Customize**.
+2. Under **"1. Add required messaging permissions"**, make sure these are added:
+   `instagram_business_basic`, `instagram_business_manage_comments`,
+   `instagram_business_manage_messages`.
+3. Under **App roles > Roles**, add the Instagram account (e.g. `planwedsee`) as an
+   **Instagram tester**. That account then has to accept the invite — note that this
+   often does **not** show up in the Instagram mobile app; accept it instead at
+   [instagram.com/accounts/manage_access](https://www.instagram.com/accounts/manage_access/)
+   (Edit profile → Apps and websites → **Tester invitations** tab → Approve).
+4. Back in **API setup with Instagram login**, under **"2. Generate access tokens"**,
+   click **Add account**, then **Generate token** next to the account. This opens an
+   Instagram login/consent popup — log in as that account and click **Allow**.
+5. Copy the resulting **Instagram User access token** (starts with `IGAA...`) into
+   Render as `PAGE_ACCESS_TOKEN`, then redeploy. This token is a short-lived Business
+   Login token (~1 hour) unless generated as a long-lived token from the App
+   Dashboard flow (60 days) — plan to refresh it periodically.
+6. Also toggle **Webhook Subscription** to **On** for that account in the same table.
 
 > Note: while your app is in "Development" mode, messaging only works for accounts
 > added as Instagram Testers under **App roles > Roles**. To DM-auto-reply for
 > *anyone* who messages you, you'll need to submit the app for **App Review**
-> (requesting `instagram_manage_messages`) and switch the app to **Live** mode. Meta
-> reviews this fairly quickly for straightforward use cases — you'll need a short
-> screen recording showing the bot working, which I can help you script.
+> (requesting `instagram_business_manage_messages`) and switch the app to **Live**
+> mode. Meta reviews this fairly quickly for straightforward use cases — you'll need
+> a short screen recording showing the bot working, which I can help you script.
+
+Under the hood, `server.js` talks to `graph.instagram.com` (not
+`graph.facebook.com`) and sends the access token as an `Authorization: Bearer`
+header — that's specific to this Instagram-Login-based token type, so if you ever
+regenerate a token make sure it's this same kind (starts with `IGAA`).
 
 ---
 
