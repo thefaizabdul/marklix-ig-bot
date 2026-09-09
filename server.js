@@ -182,6 +182,60 @@ async function sendReply(recipientId, text) {
 // ---------- Health check ----------
 app.get('/', (_req, res) => res.send('IG DM auto-reply bot is running.'));
 
+// ---------- Privacy Policy (required by Meta before an app can be published) ----------
+app.get('/privacy', (_req, res) => {
+  res.type('html').send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Privacy Policy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #222; }
+    h1 { font-size: 1.6em; }
+    h2 { font-size: 1.15em; margin-top: 1.8em; }
+    footer { margin-top: 3em; font-size: 0.9em; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p>This page explains how we handle information when you send a direct message (DM) to our
+  Instagram business account, and how our automated reply system processes that information.</p>
+
+  <h2>What we collect</h2>
+  <p>When you DM us on Instagram, we receive and may store: your Instagram-assigned sender ID,
+  your Instagram name or username (if available via the Instagram API), and the text content of
+  the message(s) you send us.</p>
+
+  <h2>How we use it</h2>
+  <p>We use this information to: (1) send you an automatic acknowledgement reply once per
+  conversation, and (2) create or update a customer enquiry record in our internal CRM system so
+  a member of our team can follow up with you. We do not use your information for advertising,
+  and we do not sell or rent it to third parties.</p>
+
+  <h2>Where it's stored</h2>
+  <p>Your enquiry (name/username, Instagram ID, and message notes) is stored in our internal CRM,
+  accessible only to our own team. A small technical log (to avoid sending you the automated
+  reply more than once) is kept on our hosting provider's servers.</p>
+
+  <h2>Sharing</h2>
+  <p>We do not share your DM content or Instagram profile information with any third party,
+  except the service providers that host our CRM and this automation (acting only on our
+  instructions, and not for their own purposes).</p>
+
+  <h2>Data retention & your choices</h2>
+  <p>We keep enquiry records for as long as reasonably needed to respond to you and maintain our
+  business records. If you'd like your information deleted or have any questions about this
+  policy, contact us using the details below.</p>
+
+  <h2>Contact</h2>
+  <p>Email: <a href="mailto:coffee@marklix.in">coffee@marklix.in</a></p>
+
+  <footer>Last updated: ${new Date().toISOString().slice(0, 10)}</footer>
+</body>
+</html>`);
+});
+
 app.listen(Number(PORT), () => {
   console.log(`Server listening on port ${PORT}`);
   console.log(`Auto-reply text: "${REPLY_TEXT}"`);
