@@ -44,6 +44,17 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    const updateMatch = req.url.match(/^\/wp-json\/vowframe\/v1\/records\/deal\/(\d+)$/);
+    if (req.method === 'POST' && updateMatch) {
+      const id = Number(updateMatch[1]);
+      const existing = created.find((d) => d.id === id);
+      if (existing) Object.assign(existing, json);
+      console.log('[mock-crm] updated deal', id, 'with:', JSON.stringify(json));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ id, ...json }));
+      return;
+    }
+
     res.writeHead(404);
     res.end('not found');
   });
