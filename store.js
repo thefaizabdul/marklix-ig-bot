@@ -1,6 +1,6 @@
 // store.js
-// Tiny file-based tracker: per Instagram sender, when we last auto-replied to
-// them, and (if CRM integration is on) which CRM Enquiry we created for them.
+// Tiny file-based tracker: per Instagram sender, whether we've EVER auto-replied
+// to them (and, if CRM integration is on) which CRM Enquiry we created for them.
 // No database setup needed — good enough for an MVP. Swap for a real DB later if you want.
 
 const fs = require('fs');
@@ -33,13 +33,12 @@ function getSender(senderId) {
   return data[senderId] || null;
 }
 
-// Returns true if we should send the auto-reply to this sender right now,
-// i.e. we haven't replied to them within the last `resetHours` hours.
-function shouldReply(senderId, resetHours) {
+// Returns true if we should send the auto-reply to this sender right now.
+// We send it ONCE EVER per sender: if we've already replied to them at any point
+// in the past, we never send it again (no time-based reset).
+function shouldReply(senderId) {
   const entry = getSender(senderId);
-  if (!entry || !entry.lastRepliedAt) return true;
-  const elapsedMs = Date.now() - entry.lastRepliedAt;
-  return elapsedMs > resetHours * 60 * 60 * 1000;
+  return !entry || !entry.lastRepliedAt;
 }
 
 function markReplied(senderId) {
